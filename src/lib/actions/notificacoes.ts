@@ -4,15 +4,14 @@ import { createClient } from "@/utils/supabase/server";
 import { sendEmail } from "@/lib/email";
 import { formatCurrency, formatDate } from "@/types/database";
 
-function emailAvisoPrevio(nomeAluno: string, valor: string, vencimento: string, chavePix: string) {
+function montarEmail(mensagemPadrao: string, valor: string, vencimento: string, chavePix: string) {
+  const mensagem = mensagemPadrao || "Sua mensalidade está em aberto.";
   return `
-    <div style="font-family: sans-serif; max-width: 500px;">
-      <h2>Olá, ${nomeAluno}!</h2>
-      <p>Passando para lembrar que sua mensalidade vence em <strong>5 dias</strong>.</p>
+    <div style="font-family: sans-serif; max-width: 500px; white-space: pre-line;">
+      <p>${mensagem}</p>
       <p><strong>Valor:</strong> ${valor}</p>
       <p><strong>Vencimento:</strong> ${vencimento}</p>
       <p><strong>Chave Pix para pagamento:</strong> ${chavePix}</p>
-      <p>Qualquer dúvida, é só chamar!</p>
     </div>
   `;
 }
@@ -33,13 +32,14 @@ function emailVencimento(nomeAluno: string, valor: string, vencimento: string, c
 export async function verificarENotificarPagamentos() {
   const supabase = await createClient();
 
-  const { data: personal } = await supabase
+ const { data: personal } = await supabase
     .from("personal")
-    .select("chave_pix")
+    .select("chave_pix, mensagem_padrao")
     .limit(1)
     .single();
 
   const chavePix = personal?.chave_pix || "chave não configurada";
+  const mensagemPadrao = personal?.mensagem_padrao || "";
 
   const hoje = new Date();
   const daqui5Dias = new Date();
@@ -70,15 +70,15 @@ export async function verificarENotificarPagamentos() {
     if (pagamento.data_vencimento === daqui5DiasStr) {
       await sendEmail(
         aluno.email,
-        "Sua mensalidade vence em 5 dias",
-        emailAvisoPrevio(aluno.nome, valor, vencimento, chavePix)
+        "Aviso de pagamento — SQUAD JM",
+        montarEmail(mensagemPadrao, valor, vencimento, chavePix)
       );
       enviados++;
     } else if (pagamento.data_vencimento === hojeStr) {
       await sendEmail(
         aluno.email,
-        "Sua mensalidade vence hoje",
-        emailVencimento(aluno.nome, valor, vencimento, chavePix)
+        "Aviso de pagamento — SQUAD JM",
+        montarEmail(mensagemPadrao, valor, vencimento, chavePix)
       );
       enviados++;
     }
