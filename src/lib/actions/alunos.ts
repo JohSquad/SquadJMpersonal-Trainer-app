@@ -152,3 +152,48 @@ export async function getAlunoStats(alunoId: string) {
 
   return { ultimaMetrica, pagamentosPendentes, totalTreinos };
 }
+
+export async function deleteAluno(alunoId: string) {
+  const admin = createAdminClient();
+
+  if (!admin) {
+    return {
+      error:
+        "Configure SUPABASE_SERVICE_ROLE_KEY para excluir alunos diretamente.",
+    };
+  }
+
+  await admin.from("pagamentos").delete().eq("aluno_id", alunoId);
+  await admin.from("metricas").delete().eq("aluno_id", alunoId);
+
+  const { data: treinos } = await admin
+    .from("treinos")
+    .select("id")
+    .eq("aluno_id", alunoId);
+
+  if (treinos && treinos.length > 0) {
+    const treinoIds = treinos.map((t) => t.id);
+    await admin.from("exercicios").delete().in("treino_id", treinoIds);
+  }
+
+  await admin.from("treinos").delete().eq("aluno_id", alunoId);
+
+  const { error: profileError } = await admin
+    .from("profiles")
+    .delete()
+    .eq("id", alunoId);
+
+  if (profileError) {
+    return { error: "Erro ao excluir perfil: " + profileError.message };
+  }
+
+  const { error: authError } = await admin.auth.admin.deleteUser(alunoId);
+
+  if (authError) {
+    return { error: "Erro ao excluir conta: " + authError.message };
+  }
+
+  revalidatePath("/personal/dashboard");
+  revalidatePath("/personal/alunos");
+  return { success: true };
+}
