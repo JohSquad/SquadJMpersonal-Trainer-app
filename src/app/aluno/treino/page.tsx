@@ -50,7 +50,7 @@ export default async function AlunoTreinoPage() {
 
                     {treino.exercicios && treino.exercicios.length > 0 ? (
                       <div className="space-y-3">
-                        {treino.exercicios.map((ex, index) => (
+                        {treino.exercicios.map((ex: any, indice: number) => (
                           <div
                             key={ex.id}
                             className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg"
