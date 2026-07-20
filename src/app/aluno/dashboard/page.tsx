@@ -92,7 +92,7 @@ export default async function AlunoDashboardPage() {
               <h4 className="font-medium text-gray-900 mb-2">{treino.nome_treino}</h4>
               {treino.exercicios && (
                 <div className="space-y-1">
-                  {treino.exercicios.map((ex) => (
+                  {treino.exercicios.map((ex: any) => (
                     <div
                       key={ex.id}
                       className="flex justify-between text-sm py-1 border-b border-gray-100 last:border-0"
