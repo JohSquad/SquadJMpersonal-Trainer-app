@@ -7,6 +7,7 @@ import { getCurrentProfile } from "@/lib/actions/auth";
 import { getMinhasMetricas } from "@/lib/actions/metricas";
 import { getMeusTreinos } from "@/lib/actions/treinos";
 import { getMeusPagamentos } from "@/lib/actions/pagamentos";
+import { createClient } from "@/utils/supabase/server";
 import { DIAS_SEMANA } from "@/types/database";
 
 export default async function AlunoDashboardPage() {
@@ -24,6 +25,17 @@ export default async function AlunoDashboardPage() {
   const hoje = new Date().getDay();
   const treinoHoje = treinos.filter((t) => t.dia_semana === hoje);
 
+  let mensagemPadrao = "";
+  if (pagamentosPendentes.length > 0) {
+    const supabase = await createClient();
+    const { data: personal } = await supabase
+      .from("personal")
+      .select("mensagem_padrao")
+      .limit(1)
+      .single();
+    mensagemPadrao = personal?.mensagem_padrao || "";
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -32,6 +44,11 @@ export default async function AlunoDashboardPage() {
         </h1>
         <p className="text-gray-500 mt-1">Acompanhe seu progresso e treinos</p>
       </div>
+      {pagamentosPendentes.length > 0 && mensagemPadrao && (
+        <Card className="border-amber-200 bg-amber-50">
+          <p className="text-amber-900 whitespace-pre-line text-sm">{mensagemPadrao}</p>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
