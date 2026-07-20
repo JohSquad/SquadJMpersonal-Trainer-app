@@ -1,5 +1,7 @@
 import { getCurrentProfile } from "@/lib/actions/auth";
 import { PerfilForm } from "@/components/aluno/PerfilForm";
+import { TrocarSenhaForm } from "@/components/aluno/TrocarSenhaForm";
+import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { redirect } from "next/navigation";
 
 export default async function AlunoPerfilPage() {
@@ -15,6 +17,13 @@ export default async function AlunoPerfilPage() {
       </div>
 
       <PerfilForm profile={profile} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Alterar senha</CardTitle>
+        </CardHeader>
+        <TrocarSenhaForm />
+      </Card>
     </div>
   );
 }
