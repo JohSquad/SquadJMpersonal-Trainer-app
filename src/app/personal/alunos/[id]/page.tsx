@@ -18,6 +18,7 @@ import { getAluno, getAlunoStats } from "@/lib/actions/alunos";
 import { getMetricas } from "@/lib/actions/metricas";
 import { getPagamentos } from "@/lib/actions/pagamentos";
 import { formatDate } from "@/types/database";
+import { DeleteAlunoButton } from "@/components/DeleteAlunoButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -72,12 +73,15 @@ export default async function AlunoDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-        <Link href={`/personal/alunos/${id}/editar`}>
-          <Button variant="outline" size="sm">
-            <Edit className="w-4 h-4" />
-            Editar
-          </Button>
-        </Link>
+       <div className="flex items-center gap-2">
+          <Link href={`/personal/alunos/${id}/editar`}>
+            <Button variant="outline" size="sm">
+              <Edit className="w-4 h-4" />
+              Editar
+            </Button>
+          </Link>
+          <DeleteAlunoButton alunoId={id} nomeAluno={aluno.nome} />
+        </div>
       </div>
 
       {/* Quick stats */}
