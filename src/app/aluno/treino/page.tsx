@@ -57,7 +57,7 @@ export default async function AlunoTreinoPage() {
                           >
                             <div className="flex items-center gap-3">
                               <span className="w-8 h-8 bg-teal-100 text-teal-700 rounded-full flex items-center justify-center text-sm font-medium">
-                                {index + 1}
+                                {indice + 1}
                               </span>
                               <div>
                                 <p className="font-medium text-gray-900">
