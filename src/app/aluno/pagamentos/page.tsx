@@ -6,8 +6,18 @@ import {
   getPaymentStatusColor,
 } from "@/types/database";
 
+import { createClient } from "@/utils/supabase/server";
+
 export default async function AlunoPagamentosPage() {
   const pagamentos = await getMeusPagamentos();
+
+  const supabase = await createClient();
+  const { data: personal } = await supabase
+    .from("personal")
+    .select("chave_pix")
+    .limit(1)
+    .single();
+  const chavePix = personal?.chave_pix || "Chave não configurada";
 
   const pendentes = pagamentos.filter(
     (p) => p.status === "pendente" || p.status === "atrasado"
@@ -27,6 +37,11 @@ export default async function AlunoPagamentosPage() {
           </p>
         </Card>
       )}
+      
+      <Card className="border-teal-200 bg-teal-50">
+        <p className="text-teal-800 font-medium">Chave Pix para pagamento:</p>
+        <p className="text-teal-900 text-lg font-bold mt-1">{chavePix}</p>
+      </Card>
 
       <Card>
         <CardHeader>
