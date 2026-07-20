@@ -208,3 +208,31 @@ export async function updateAlunoPerfil(formData: FormData) {
   revalidatePath("/aluno/dashboard");
   return { success: true };
 }
+
+export async function changePassword(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Não autenticado." };
+
+  const novaSenha = formData.get("nova_senha") as string;
+  const confirmarSenha = formData.get("confirmar_senha") as string;
+
+  if (!novaSenha || novaSenha.length < 6) {
+    return { error: "A senha deve ter pelo menos 6 caracteres." };
+  }
+
+  if (novaSenha !== confirmarSenha) {
+    return { error: "As senhas não coincidem." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: novaSenha });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
